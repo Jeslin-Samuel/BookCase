@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">BookCase</string>
+    <string-array name="list_books">
+        <item> Select a book</item>,
+        <item> To Kill a Mockingbird</item>,
+        <item> The Fault In Our Stars </item>,
+        <item> Thirteen Reasons Why</item>,
+        <item> Hamlet</item>,
+        <item> The Great Gatsby</item>,
+        <item> The Odyssey</item>,
+        <item> The Adventures of Huckleberry Finn </item>,
+        <item> The Three Musketeers </item>
+        <item> War and Peace</item>
+    </string-array>
+</resources>
