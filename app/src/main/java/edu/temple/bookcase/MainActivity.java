@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,5 +19,12 @@ public class MainActivity extends AppCompatActivity {
 
         bookListFragment = BookListFragment.newInstance(bookList);
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, bookListFragment).commit();
+    }
+
+    @Override
+    public void getBook(String title)
+    {
+        BookDetailsFragment bookDetailsFragment = BookDetailsFragment.newInstance(title);
+        getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, bookDetailsFragment).addToBackStack(null).commit();
     }
 }

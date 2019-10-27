@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +19,11 @@ import java.util.List;
 
 public class BookListFragment extends Fragment
 {
-    private static final String ARG_BOOKS = "argBooks";
-    private Context parent;
-    private ArrayList<String> books;
+    public static final String ARG_BOOKS = "argBooks";
+    public Context parent;
+    public ArrayList<String> books;
 
-    private static BookListFragment newInstance(ArrayList<String> books)
+    public static BookListFragment newInstance(ArrayList<String> books)
     {
         BookListFragment bookListFragment = new BookListFragment();
         Bundle args = new Bundle();
@@ -43,14 +45,25 @@ public class BookListFragment extends Fragment
         ListView listView = view.findViewById(R.id.booklistListView);
 
         if (getArguments() != null)
-        {
             books = getArguments().getStringArrayList(ARG_BOOKS);
-        }
-
         List<String> bookList = books;
+        
         ArrayAdapter adapter = new ArrayAdapter(parent, android.R.layout.simple_list_item_1, bookList);
         listView.setAdapter(adapter);
+        
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            {
+                ((BookCommunicator) parent).getBook(books.get(i));
+            }
+        });
 
         return view;
+    }
+
+    public interface BookCommunicator
+    {
+        void getBook(String title);
     }
 }
