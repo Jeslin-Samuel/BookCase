@@ -16,8 +16,9 @@ import java.util.ArrayList;
 
 public class ViewPagerFragment extends Fragment
 {
+    public static final String ARG_FRAGMENTS = "argFragments";
     ViewPager viewPager;
-    ArrayList<BookDetailsFragment> fragments;
+    ArrayList<BookDetailsFragment> fragments = new ArrayList<>();
 
     public static ViewPagerFragment newInstance()
     {
@@ -28,13 +29,12 @@ public class ViewPagerFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_bookdetails, container, false);
-
-        fragments = new ArrayList<BookDetailsFragment>();
-
-        fragments.add(BookDetailsFragment.newInstance("Huckleberry Finn"));
+        View view = inflater.inflate(R.layout.fragment_viewpager, container, false);
 
         viewPager = view.findViewById(R.id.viewPager);
+
+        fragments.add(BookDetailsFragment.newInstance("Huckleberry Finn"));
+        fragments.add(BookDetailsFragment.newInstance("Catch-22"));
 
         CustomViewPagerAdapter adapter = new CustomViewPagerAdapter(getChildFragmentManager(), fragments);
 
