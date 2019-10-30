@@ -16,13 +16,17 @@ import java.util.ArrayList;
 
 public class ViewPagerFragment extends Fragment
 {
-    public static final String ARG_FRAGMENTS = "argFragments";
+    public static final String ARG_TITLES = "argTitles";
     ViewPager viewPager;
     ArrayList<BookDetailsFragment> fragments = new ArrayList<>();
+    ArrayList<String> titles = new ArrayList<>();
 
-    public static ViewPagerFragment newInstance()
+    public static ViewPagerFragment newInstance(ArrayList<String> titles)
     {
         ViewPagerFragment viewPagerFragment = new ViewPagerFragment();
+        Bundle args = new Bundle();
+        args.putStringArrayList(ARG_TITLES, titles);
+        viewPagerFragment.setArguments(args);
         return viewPagerFragment;
     }
 
@@ -31,10 +35,15 @@ public class ViewPagerFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_viewpager, container, false);
 
-        viewPager = view.findViewById(R.id.viewPager);
+        if (getArguments() != null)
+            titles = getArguments().getStringArrayList(ARG_TITLES);
 
-        fragments.add(BookDetailsFragment.newInstance("Huckleberry Finn"));
-        fragments.add(BookDetailsFragment.newInstance("Catch-22"));
+        for (String title : titles)
+        {
+            fragments.add(BookDetailsFragment.newInstance(title));
+        }
+
+        viewPager = view.findViewById(R.id.viewPager);
 
         CustomViewPagerAdapter adapter = new CustomViewPagerAdapter(getChildFragmentManager(), fragments);
 

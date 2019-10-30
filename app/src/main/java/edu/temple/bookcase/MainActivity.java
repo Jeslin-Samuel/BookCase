@@ -1,13 +1,11 @@
 package edu.temple.bookcase;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator {
 
@@ -20,16 +18,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         ViewPagerFragment viewPagerFragment;
         BookDetailsFragment bookDetailsFragment;
         ArrayList<String> bookList = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.list_books)));
-        ArrayList<BookDetailsFragment> detailsFragments = new ArrayList<BookDetailsFragment>();
-
-        for (String title: bookList)
-        {
-            detailsFragments.add(BookDetailsFragment.newInstance(title));
-        }
 
         if ((findViewById(R.id.landscape) == null) && (findViewById(R.id.large) == null))
         {
-            viewPagerFragment = ViewPagerFragment.newInstance();
+            viewPagerFragment = ViewPagerFragment.newInstance(bookList);
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, viewPagerFragment).commit();
         }
 
@@ -37,8 +29,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         {
             bookListFragment = BookListFragment.newInstance(bookList);
             bookDetailsFragment = BookDetailsFragment.newInstance(bookList.get(0));
+
             getSupportFragmentManager().beginTransaction().add(R.id.leftHalf, bookListFragment).commit();
-            getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.rightHalf, bookDetailsFragment).commit();
+
         }
     }
 
@@ -46,6 +40,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void getBook(String title)
     {
         BookDetailsFragment bookDetailsFragment = BookDetailsFragment.newInstance(title);
-        getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, bookDetailsFragment).addToBackStack(null).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).addToBackStack(null).commit();
     }
 }
