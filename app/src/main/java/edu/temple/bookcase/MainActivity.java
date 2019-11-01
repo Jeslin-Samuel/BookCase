@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             bookDetailsFragment = BookDetailsFragment.newInstance(bookList.get(0));
 
             getSupportFragmentManager().beginTransaction().add(R.id.leftHalf, bookListFragment).commit();
-            getSupportFragmentManager().beginTransaction().replace(R.id.rightHalf, bookDetailsFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).commit();
 
         }
     }
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void getBook(String title)
     {
-        BookDetailsFragment bookDetailsFragment = BookDetailsFragment.newInstance(title);
-        getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).addToBackStack(null).commit();
+        BookDetailsFragment bookDetailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.rightHalf);
+        bookDetailsFragment.textView.setText(title);
     }
 }
