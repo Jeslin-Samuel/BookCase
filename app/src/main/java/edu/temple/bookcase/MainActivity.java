@@ -1,10 +1,17 @@
 package edu.temple.bookcase;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -12,9 +19,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator {
+    ArrayList<Book> newBookList = new ArrayList<>();
+
+    Handler JSONHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message message) {
+            JSONObject jsonObject;
+
+            try {
+                JSONArray booklistJSONArray = new JSONArray(message.obj.toString());
+
+                for (int i = 0; i < booklistJSONArray.length(); i++) {
+                    jsonObject = (JSONObject) booklistJSONArray.get(i);
+                    newBookList.add(new Book(
+                            jsonObject.getInt("book_id"),
+                            jsonObject.getString("title"),
+                            jsonObject.getString("author"),
+                            jsonObject.getInt("published"),
+                            jsonObject.getString("cover_url")));
+                }
+
+            } catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
+    });
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
