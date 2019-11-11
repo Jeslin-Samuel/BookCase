@@ -12,4 +12,5 @@
         <item> The Three Musketeers </item>
         <item> War and Peace</item>
     </string-array>
+    <string name="cover_description">Book Cover</string>
 </resources>

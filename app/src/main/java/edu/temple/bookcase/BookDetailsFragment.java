@@ -38,7 +38,7 @@ public class BookDetailsFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bookdetails, container, false);
-        textView = view.findViewById(R.id.textView);
+        textView = view.findViewById(R.id.bookTitle);
 
         if (getArguments() != null)
             bookTitle = getArguments().getString(ARG_TITLE);
