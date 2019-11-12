@@ -1,11 +1,11 @@
 package edu.temple.bookcase;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,16 +14,15 @@ import androidx.fragment.app.Fragment;
 
 public class BookDetailsFragment extends Fragment
 {
-    public static final String ARG_TITLE = "argTitle";
+    public static final String ARG_BOOK = "argBook";
     Context parent;
-    String bookTitle;
-    public TextView textView;
+    Book book;
 
-    public static BookDetailsFragment newInstance(String bookTitle)
+    public static BookDetailsFragment newInstance(Book book)
     {
         BookDetailsFragment bookDetailsFragment = new BookDetailsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_TITLE, bookTitle);
+        args.putSerializable(ARG_BOOK, book);
         bookDetailsFragment.setArguments(args);
         return bookDetailsFragment;
     }
@@ -38,13 +37,20 @@ public class BookDetailsFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bookdetails, container, false);
-        textView = view.findViewById(R.id.bookTitle);
+        ImageView bookCover = view.findViewById(R.id.bookCover);
+        TextView bookTitle = view.findViewById(R.id.bookTitle);
+        TextView bookAuthor = view.findViewById(R.id.bookAuthor);
+        TextView bookDate = view.findViewById(R.id.bookDate);
 
         if (getArguments() != null)
-            bookTitle = getArguments().getString(ARG_TITLE);
+            book = (Book) getArguments().getSerializable(ARG_BOOK);
 
-        textView.setText(bookTitle);
-        view.setBackgroundColor(Color.WHITE);
+        if (book != null)
+        {
+            bookTitle.setText(book.title);
+            bookAuthor.setText(book.author);
+            bookDate.setText(book.published);
+        }
 
         return view;
     }

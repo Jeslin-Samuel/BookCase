@@ -16,16 +16,16 @@ import java.util.ArrayList;
 
 public class ViewPagerFragment extends Fragment
 {
-    public static final String ARG_TITLES = "argTitles";
+    public static final String ARG_BOOKS = "argBooks";
     ViewPager viewPager;
     ArrayList<BookDetailsFragment> fragments = new ArrayList<>();
-    ArrayList<String> titles = new ArrayList<>();
+    ArrayList<Book> books = new ArrayList<>();
 
-    public static ViewPagerFragment newInstance(ArrayList<String> titles)
+    public static ViewPagerFragment newInstance(ArrayList<Book> books)
     {
         ViewPagerFragment viewPagerFragment = new ViewPagerFragment();
         Bundle args = new Bundle();
-        args.putStringArrayList(ARG_TITLES, titles);
+        args.putSerializable(ARG_BOOKS, books);
         viewPagerFragment.setArguments(args);
         return viewPagerFragment;
     }
@@ -36,11 +36,11 @@ public class ViewPagerFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_viewpager, container, false);
 
         if (getArguments() != null)
-            titles = getArguments().getStringArrayList(ARG_TITLES);
+            books = (ArrayList<Book>) getArguments().getSerializable(ARG_BOOKS);
 
-        for (String title : titles)
+        for (Book book : books)
         {
-            fragments.add(BookDetailsFragment.newInstance(title));
+            fragments.add(BookDetailsFragment.newInstance(book));
         }
 
         viewPager = view.findViewById(R.id.viewPager);

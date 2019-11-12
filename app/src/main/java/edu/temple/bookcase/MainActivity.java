@@ -25,18 +25,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         @Override
         public boolean handleMessage(@NonNull Message message) {
             JSONObject jsonObject;
-
             try {
                 JSONArray booklistJSONArray = new JSONArray(message.obj.toString());
-
                 for (int i = 0; i < booklistJSONArray.length(); i++) {
                     jsonObject = (JSONObject) booklistJSONArray.get(i);
-                    newBookList.add(new Book(
-                            jsonObject.getInt("book_id"),
-                            jsonObject.getString("title"),
-                            jsonObject.getString("author"),
-                            jsonObject.getInt("published"),
-                            jsonObject.getString("cover_url")));
+                    Book book = new Book(jsonObject.optInt("book_id"),
+                                         jsonObject.optString("title"),
+                                         jsonObject.optString("author"),
+                                         jsonObject.optInt("published"),
+                                         jsonObject.getString("cover_url"));
+                    newBookList.add(book);
                 }
 
             } catch (JSONException e)
@@ -58,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         BookDetailsFragment bookDetailsFragment;
         ArrayList<String> bookList = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.list_books)));
 
+        ArrayList<String> listOfBookTitle = new ArrayList<>();
+        for (int i = 0; i < newBookList.size(); i++) {
+            listOfBookTitle.add(newBookList.get(i).title);
+        }
+
         new Thread() {
             @Override
             public void run()
@@ -76,9 +79,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
                     Message message = Message.obtain();
                     message.obj = builder.toString();
-
+                    JSONHandler.sendMessage(message);
                     Log.d("JSON Data", message.obj.toString());
-
                 }
 
                 catch(Exception e)
@@ -90,27 +92,31 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         if ((findViewById(R.id.landscape) == null) && (findViewById(R.id.large) == null))
         {
-            viewPagerFragment = ViewPagerFragment.newInstance(bookList);
+            viewPagerFragment = ViewPagerFragment.newInstance(newBookList);
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, viewPagerFragment).commit();
         }
 
         else
         {
-            bookListFragment = BookListFragment.newInstance(bookList);
-            bookDetailsFragment = BookDetailsFragment.newInstance(bookList.get(0));
+            bookListFragment = BookListFragment.newInstance(listOfBookTitle);
+            bookDetailsFragment = BookDetailsFragment.newInstance(newBookList.get(0));
 
             getSupportFragmentManager().beginTransaction().add(R.id.leftHalf, bookListFragment).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).commit();
-
         }
     }
 
     @Override
     public void getBook(String title)
     {
-        BookDetailsFragment bookDetailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.rightHalf);
-        bookDetailsFragment.textView.setText(title);
-    }
+        Book newBook = null;
 
-    public void booklistJSONGet(String myURL) {}
+        for (int i = 0; i < newBookList.size(); i++) {
+            if (newBookList.get(i).title.equals(title));
+                newBook = newBookList.get(i);
+        }
+
+        BookDetailsFragment bookDetailsFragment = BookDetailsFragment.newInstance(newBook);
+        getSupportFragmentManager().beginTransaction().replace(R.id.rightHalf, bookDetailsFragment).commit();
+    }
 }
