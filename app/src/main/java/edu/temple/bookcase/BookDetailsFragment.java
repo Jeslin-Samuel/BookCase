@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.squareup.picasso.Picasso;
+
 public class BookDetailsFragment extends Fragment
 {
     public static final String ARG_BOOK = "argBook";
@@ -49,7 +51,8 @@ public class BookDetailsFragment extends Fragment
         {
             bookTitle.setText(book.title);
             bookAuthor.setText(book.author);
-            bookDate.setText(book.published);
+            bookDate.setText(Integer.toString(book.published));
+            Picasso.get().load(book.coverURL).into(bookCover);
         }
 
         return view;

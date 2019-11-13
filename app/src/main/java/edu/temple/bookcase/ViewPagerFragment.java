@@ -1,6 +1,7 @@
 package edu.temple.bookcase;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ public class ViewPagerFragment extends Fragment
     ViewPager viewPager;
     ArrayList<BookDetailsFragment> fragments = new ArrayList<>();
     ArrayList<Book> books = new ArrayList<>();
+    CustomViewPagerAdapter adapter;
 
     public static ViewPagerFragment newInstance(ArrayList<Book> books)
     {
@@ -45,7 +48,7 @@ public class ViewPagerFragment extends Fragment
 
         viewPager = view.findViewById(R.id.viewPager);
 
-        CustomViewPagerAdapter adapter = new CustomViewPagerAdapter(getChildFragmentManager(), fragments);
+        adapter = new CustomViewPagerAdapter(getChildFragmentManager(), fragments);
 
         viewPager.setAdapter(adapter);
 
@@ -71,5 +74,22 @@ public class ViewPagerFragment extends Fragment
         public int getCount() {
             return fragments.size();
         }
+
+        @Override
+        public int getItemPosition(@NonNull Object object)
+        {
+            return PagerAdapter.POSITION_NONE;
+        }
+    }
+
+    public void changeListOfBooks(ArrayList<Book> newBooks)
+    {
+        fragments.clear();
+        Log.d("After Test", Integer.toString(newBooks.size()));
+        Log.d("Another Test", Integer.toString(newBooks.get(0).published));
+        for (int i = 0; i < newBooks.size(); i++) {
+            fragments.add(new BookDetailsFragment().newInstance(newBooks.get(i)));
+        }
+        adapter.notifyDataSetChanged();
     }
 }

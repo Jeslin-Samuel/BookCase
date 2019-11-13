@@ -20,6 +20,10 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator {
     ArrayList<Book> newBookList = new ArrayList<>();
+    BookListFragment bookListFragment;
+    ViewPagerFragment viewPagerFragment;
+    BookDetailsFragment bookDetailsFragment;
+    ArrayList<String> listOfBookTitle = new ArrayList<>();
 
     Handler JSONHandler = new Handler(new Handler.Callback() {
         @Override
@@ -29,12 +33,18 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 JSONArray booklistJSONArray = new JSONArray(message.obj.toString());
                 for (int i = 0; i < booklistJSONArray.length(); i++) {
                     jsonObject = (JSONObject) booklistJSONArray.get(i);
-                    Book book = new Book(jsonObject.optInt("book_id"),
-                                         jsonObject.optString("title"),
-                                         jsonObject.optString("author"),
-                                         jsonObject.optInt("published"),
+                    Book book = new Book(jsonObject.getInt("book_id"),
+                                         jsonObject.getString("title"),
+                                         jsonObject.getString("author"),
+                                         jsonObject.getInt("published"),
                                          jsonObject.getString("cover_url"));
                     newBookList.add(book);
+                }
+
+                if (viewPagerFragment != null)
+                {
+                    Log.d("Before Test", Integer.toString(newBookList.size()));
+                    viewPagerFragment.changeListOfBooks(newBookList);
                 }
 
             } catch (JSONException e)
@@ -51,12 +61,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BookListFragment bookListFragment;
-        ViewPagerFragment viewPagerFragment;
-        BookDetailsFragment bookDetailsFragment;
+        Log.d("onCreate Test", Integer.toString(newBookList.size()));
+
         ArrayList<String> bookList = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.list_books)));
 
-        ArrayList<String> listOfBookTitle = new ArrayList<>();
         for (int i = 0; i < newBookList.size(); i++) {
             listOfBookTitle.add(newBookList.get(i).title);
         }
@@ -80,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     Message message = Message.obtain();
                     message.obj = builder.toString();
                     JSONHandler.sendMessage(message);
-                    Log.d("JSON Data", message.obj.toString());
                 }
 
                 catch(Exception e)
