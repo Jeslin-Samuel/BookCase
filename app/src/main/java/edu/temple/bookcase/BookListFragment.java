@@ -69,9 +69,13 @@ public class BookListFragment extends Fragment
 
     public void changeListOfBooks(ArrayList<Book> bookTitles)
     {
-        Log.d("After Title Test", Integer.toString(bookTitles.size()));
 //        books.clear();
-//        books.addAll(bookTitles);
+        Log.d("After Title Test", Integer.toString(bookTitles.size()));
+//        for (int i = 0; i <bookTitles.size(); i++)
+//        {
+//            books.add(bookTitles.get(i));
+//        }
+        //books.addAll(bookTitles);
         Log.d("Whywhywhy", Integer.toString(books.size()));
         adapter.notifyDataSetChanged();
     }

@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         public boolean handleMessage(@NonNull Message message) {
             JSONObject jsonObject;
             try {
+                newBookList.clear();
                 Log.d("Reached here", "Please!");
                 JSONArray booklistJSONArray = new JSONArray(message.obj.toString());
                 for (int i = 0; i < booklistJSONArray.length(); i++) {
@@ -115,12 +116,11 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 @Override
                 public void onClick(View view)
                 {
-                    Toast.makeText(MainActivity.this, "Hello!", Toast.LENGTH_SHORT).show();
                     search(portraitSearchBar.getText().toString());
                 }
             });
             viewPagerFragment = ViewPagerFragment.newInstance(newBookList);
-            getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, viewPagerFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.mainViewPager, viewPagerFragment).commit();
         }
 
         else
