@@ -84,6 +84,7 @@ public class ViewPagerFragment extends Fragment
 
     public void changeListOfBooks(ArrayList<Book> newBooks)
     {
+        Log.d("Why is this test necessary", Integer.toString(newBooks.size()));
         fragments.clear();
         for (int i = 0; i < newBooks.size(); i++) {
             fragments.add(new BookDetailsFragment().newInstance(newBooks.get(i)));
