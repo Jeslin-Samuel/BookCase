@@ -10,11 +10,11 @@
     <FrameLayout
         android:id="@+id/leftHalf"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/rightHalf"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/landscapeSearchButton">
 
     </FrameLayout>
 
@@ -28,4 +28,23 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
+
+    <EditText
+        android:id="@+id/landscapeSearchBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/leftHalf"
+        app:layout_constraintEnd_toStartOf="@+id/landscapeSearchButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/landscapeSearchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        app:layout_constraintEnd_toStartOf="@+id/rightHalf"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
