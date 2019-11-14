@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     BookListFragment bookListFragment;
     ViewPagerFragment viewPagerFragment;
     BookDetailsFragment bookDetailsFragment;
-    ArrayList<String> listOfBookTitle = new ArrayList<>();
+    Book placeholderBook = new Book(0,"Placeholder II: Electric Boogaloo", "Jane Doe", 1624, "https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg");
 
     Handler JSONHandler = new Handler(new Handler.Callback() {
         @Override
@@ -47,6 +47,11 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     viewPagerFragment.changeListOfBooks(newBookList);
                 }
 
+                else
+                {
+                    bookListFragment.changeListOfBooks(newBookList);
+                }
+
             } catch (JSONException e)
             {
                 e.printStackTrace();
@@ -60,14 +65,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Log.d("onCreate Test", Integer.toString(newBookList.size()));
-
-        ArrayList<String> bookList = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.list_books)));
-
-        for (int i = 0; i < newBookList.size(); i++) {
-            listOfBookTitle.add(newBookList.get(i).title);
-        }
 
         new Thread() {
             @Override
@@ -105,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         else
         {
-            bookListFragment = BookListFragment.newInstance(listOfBookTitle);
-            bookDetailsFragment = BookDetailsFragment.newInstance(newBookList.get(0));
+            bookListFragment = BookListFragment.newInstance(newBookList);
+            bookDetailsFragment = BookDetailsFragment.newInstance(placeholderBook);
 
             getSupportFragmentManager().beginTransaction().add(R.id.leftHalf, bookListFragment).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).commit();
@@ -114,16 +111,9 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
 
     @Override
-    public void getBook(String title)
+    public void getBook(Book passedBook)
     {
-        Book newBook = null;
-
-        for (int i = 0; i < newBookList.size(); i++) {
-            if (newBookList.get(i).title.equals(title));
-                newBook = newBookList.get(i);
-        }
-
-        BookDetailsFragment bookDetailsFragment = BookDetailsFragment.newInstance(newBook);
+        BookDetailsFragment bookDetailsFragment = BookDetailsFragment.newInstance(passedBook);
         getSupportFragmentManager().beginTransaction().replace(R.id.rightHalf, bookDetailsFragment).commit();
     }
 }

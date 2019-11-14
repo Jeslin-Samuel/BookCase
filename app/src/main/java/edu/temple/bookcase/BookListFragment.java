@@ -2,17 +2,21 @@ package edu.temple.bookcase;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +24,14 @@ public class BookListFragment extends Fragment
 {
     public static final String ARG_BOOKS = "argBooks";
     public Context parent;
-    public ArrayList<String> books;
+    public ArrayList<Book> books;
+    CustomArrayAdapter adapter;
 
-    public static BookListFragment newInstance(ArrayList<String> books)
+    public static BookListFragment newInstance(ArrayList<Book> books)
     {
         BookListFragment bookListFragment = new BookListFragment();
         Bundle args = new Bundle();
-        args.putStringArrayList(ARG_BOOKS, books);
+        args.putSerializable(ARG_BOOKS, books);
         bookListFragment.setArguments(args);
         return bookListFragment;
     }
@@ -44,10 +49,9 @@ public class BookListFragment extends Fragment
         ListView listView = view.findViewById(R.id.booklistListView);
 
         if (getArguments() != null)
-            books = getArguments().getStringArrayList(ARG_BOOKS);
-        List<String> bookList = books;
-        
-        ArrayAdapter adapter = new ArrayAdapter(parent, android.R.layout.simple_list_item_1, bookList);
+            books = (ArrayList<Book>) getArguments().getSerializable(ARG_BOOKS);
+
+        adapter = new CustomArrayAdapter(parent, books);
         listView.setAdapter(adapter);
         
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -61,8 +65,51 @@ public class BookListFragment extends Fragment
         return view;
     }
 
+    public void changeListOfBooks(ArrayList<Book> bookTitles)
+    {
+        Log.d("After Title Test", Integer.toString(bookTitles.size()));
+//        books.clear();
+//        books.addAll(bookTitles);
+        Log.d("Whywhywhy", Integer.toString(books.size()));
+        adapter.notifyDataSetChanged();
+    }
+
+    public class CustomArrayAdapter extends BaseAdapter
+    {
+        ArrayList<Book> books;
+        Context context;
+
+        public CustomArrayAdapter(Context context, ArrayList<Book> books)
+        {
+            this.books = books;
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return books.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return books.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            TextView textView = new TextView(context);
+            textView.setText(books.get(i).title);
+            return textView;
+        }
+    }
+
     public interface BookCommunicator
     {
-        void getBook(String title);
+        void getBook(Book passedBook);
     }
 }
