@@ -91,4 +91,9 @@ public class ViewPagerFragment extends Fragment
         }
         adapter.notifyDataSetChanged();
     }
+
+    public ArrayList<Book> fetchBooks()
+    {
+        return books;
+    }
 }

@@ -69,13 +69,13 @@ public class BookListFragment extends Fragment
 
     public void changeListOfBooks(ArrayList<Book> bookTitles)
     {
-//        books.clear();
+        books.clear();
         Log.d("After Title Test", Integer.toString(bookTitles.size()));
 //        for (int i = 0; i <bookTitles.size(); i++)
 //        {
 //            books.add(bookTitles.get(i));
 //        }
-        //books.addAll(bookTitles);
+        books.addAll(bookTitles);
         Log.d("Whywhywhy", Integer.toString(books.size()));
         adapter.notifyDataSetChanged();
     }
@@ -112,6 +112,11 @@ public class BookListFragment extends Fragment
             textView.setText(books.get(i).title);
             return textView;
         }
+    }
+
+    public ArrayList<Book> fetchBooks()
+    {
+        return books;
     }
 
     public interface BookCommunicator
