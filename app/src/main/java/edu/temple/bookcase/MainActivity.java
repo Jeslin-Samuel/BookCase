@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     boolean onePane, connected;
     BookDetailsFragment bookDetailsFragment;
     AudiobookService.MediaControlBinder binder;
+    TextView playerStatus;
 
     ServiceConnection serviceConnection = new ServiceConnection()
     {
@@ -107,6 +109,25 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 search(((EditText) findViewById(R.id.searchBar)).getText().toString());
             }
         });
+
+        findViewById(R.id.pauseButton).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                binder.pause();
+            }
+        });
+
+        findViewById(R.id.stopButton).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                binder.stop();
+                playerStatus.setText("");
+            }
+        });
     }
 
     void createDisplay()
@@ -128,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         startService(new Intent(this, AudiobookService.class));
         bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
+        playerStatus = findViewById(R.id.playerStatus);
     }
 
     void refreshDisplay()
@@ -163,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         bookDetailsFragment = (BookDetailsFragment) checkPane2;
         startService(new Intent(this, AudiobookService.class));
         bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
+        playerStatus = findViewById(R.id.playerStatus);
     }
 
     void refreshBooks()
@@ -224,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         if (connected)
         {
             binder.play(book.id);
+            playerStatus.setText("Now Playing: " + book.title);
         }
     }
 }
