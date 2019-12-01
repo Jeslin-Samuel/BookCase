@@ -1,45 +1,191 @@
 package edu.temple.bookcase;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.widget.EditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator {
+public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator
+{
+    FragmentManager fragmentManager;
+    ArrayList<Book> books;
+    Fragment checkPane1, checkPane2;
+    boolean onePane;
+    BookDetailsFragment bookDetailsFragment;
+
+
+    Handler JSONHandler = new Handler(new Handler.Callback()
+    {
+        @Override
+        public boolean handleMessage(@NonNull Message msg)
+        {
+            try
+            {
+                books.clear();
+                JSONArray booksJSONArray = new JSONArray(msg.obj.toString());
+                for (int i = 0; i < booksJSONArray.length(); i++)
+                {
+                    JSONObject jsonObject = (JSONObject) booksJSONArray.get(i);
+                    books.add(new Book(jsonObject.getInt("book_id"),
+                            jsonObject.getString("title"),
+                            jsonObject.getString("author"),
+                            jsonObject.getInt("published"),
+                            jsonObject.getString("cover_url")));
+                }
+
+                if (fragmentManager.findFragmentById(R.id.pane1) == null)
+                    createDisplay();
+                else
+                    refreshBooks();
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            return true;
+        }
+    });
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fragmentManager = getSupportFragmentManager();
+        books = new ArrayList<Book>();
 
-        BookListFragment bookListFragment;
-        ViewPagerFragment viewPagerFragment;
-        BookDetailsFragment bookDetailsFragment;
-        ArrayList<String> bookList = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.list_books)));
+        checkPane1 = fragmentManager.findFragmentById(R.id.pane1);
+        checkPane2 = fragmentManager.findFragmentById(R.id.pane2);
+        onePane = (findViewById(R.id.pane2) == null);
 
-        if ((findViewById(R.id.landscape) == null) && (findViewById(R.id.large) == null))
+        if (checkPane1 == null)
+            search("");
+        else
+            refreshDisplay();
+
+        findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                search(((EditText) findViewById(R.id.searchBar)).getText().toString());
+            }
+        });
+    }
+
+    void createDisplay()
+    {
+        if (onePane)
         {
-            viewPagerFragment = ViewPagerFragment.newInstance(bookList);
-            getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, viewPagerFragment).commit();
+            checkPane1 = ViewPagerFragment.newInstance(books);
+            fragmentManager.beginTransaction().add(R.id.pane1, checkPane1).commit();
         }
 
         else
         {
-            bookListFragment = BookListFragment.newInstance(bookList);
-            bookDetailsFragment = BookDetailsFragment.newInstance(bookList.get(0));
-
-            getSupportFragmentManager().beginTransaction().add(R.id.leftHalf, bookListFragment).commit();
-            getSupportFragmentManager().beginTransaction().add(R.id.rightHalf, bookDetailsFragment).commit();
-
+            checkPane1 = BookListFragment.newInstance(books);
+            bookDetailsFragment = new BookDetailsFragment();
+            fragmentManager.beginTransaction()
+                    .add(R.id.pane1, checkPane1)
+                    .add(R.id.pane2, bookDetailsFragment).commit();
         }
     }
 
-    @Override
-    public void getBook(String title)
+    void refreshDisplay()
     {
-        BookDetailsFragment bookDetailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.rightHalf);
-        bookDetailsFragment.textView.setText(title);
+        Fragment fragment = checkPane1;
+        books = ((Displayable) checkPane1).fetchBooks();
+
+        if (onePane)
+        {
+            if (checkPane1 instanceof BookListFragment)
+            {
+                checkPane1 = ViewPagerFragment.newInstance(books);
+                fragmentManager.beginTransaction().remove(fragment).add(R.id.pane1, checkPane1).commit();
+            }
+        }
+        else
+        {
+            if (checkPane1 instanceof ViewPagerFragment)
+            {
+                checkPane1 = BookListFragment.newInstance(books);
+                fragmentManager.beginTransaction().remove(fragment).add(R.id.pane1, checkPane1).commit();
+            }
+
+            if (checkPane2 instanceof BookDetailsFragment)
+                bookDetailsFragment = (BookDetailsFragment) checkPane2;
+            else
+            {
+                bookDetailsFragment = new BookDetailsFragment();
+                fragmentManager.beginTransaction().add(R.id.pane2, bookDetailsFragment).commit();
+            }
+        }
+
+        bookDetailsFragment = (BookDetailsFragment) checkPane2;
+    }
+
+    void refreshBooks()
+    {
+        ((Displayable) checkPane1).changeListOfBooks(books);
+    }
+
+    @Override
+    public void getBook(Book book)
+    {
+        if (bookDetailsFragment != null)
+            bookDetailsFragment.changeBook(book);
+    }
+
+    public void search(final String searchTerm)
+    {
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                String tempURL;
+                URL url;
+
+                try
+                {
+                    if (searchTerm.equals(""))
+                        tempURL = "https://kamorris.com/lab/audlib/booksearch.php";
+                    else
+                        tempURL = "https://kamorris.com/lab/audlib/booksearch.php?search=" + searchTerm;
+
+                    url = new URL(tempURL);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                    StringBuilder builder = new StringBuilder();
+                    String response;
+
+                    while ((response = reader.readLine()) != null)
+                    {
+                        builder.append(response);
+                    }
+
+                    Message message = Message.obtain();
+                    message.obj = builder.toString();
+                    JSONHandler.sendMessage(message);
+                }
+
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 }

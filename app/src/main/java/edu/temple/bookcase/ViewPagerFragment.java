@@ -10,66 +10,84 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
 
-public class ViewPagerFragment extends Fragment
+public class ViewPagerFragment extends Fragment implements Displayable
 {
-    public static final String ARG_TITLES = "argTitles";
+    static final String ARG_BOOKS = "argBooks";
     ViewPager viewPager;
-    ArrayList<BookDetailsFragment> fragments = new ArrayList<>();
-    ArrayList<String> titles = new ArrayList<>();
+    ArrayList<Book> books;
+    CustomViewPagerAdapter adapter;
 
-    public static ViewPagerFragment newInstance(ArrayList<String> titles)
+    public ViewPagerFragment(){}
+
+    public static ViewPagerFragment newInstance(ArrayList<Book> books)
     {
         ViewPagerFragment viewPagerFragment = new ViewPagerFragment();
         Bundle args = new Bundle();
-        args.putStringArrayList(ARG_TITLES, titles);
+        args.putSerializable(ARG_BOOKS, books);
         viewPagerFragment.setArguments(args);
         return viewPagerFragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null)
+            books = (ArrayList<Book>) getArguments().getSerializable(ARG_BOOKS);
+    }
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    {
         View view = inflater.inflate(R.layout.fragment_viewpager, container, false);
-
-        if (getArguments() != null)
-            titles = getArguments().getStringArrayList(ARG_TITLES);
-
-        for (String title : titles)
-        {
-            fragments.add(BookDetailsFragment.newInstance(title));
-        }
-
         viewPager = view.findViewById(R.id.viewPager);
-
-        CustomViewPagerAdapter adapter = new CustomViewPagerAdapter(getChildFragmentManager(), fragments);
-
-        viewPager.setAdapter(adapter);
-
+        viewPager.setAdapter(new CustomViewPagerAdapter(getChildFragmentManager(), books));
         return view;
     }
 
+    @Override
+    public void changeListOfBooks(ArrayList<Book> books)
+    {
+        this.books = books;
+        viewPager.getAdapter().notifyDataSetChanged();
+    }
+
+    @Override
+    public ArrayList<Book> fetchBooks(){return books;}
+
     class CustomViewPagerAdapter extends FragmentStatePagerAdapter
     {
-        ArrayList<BookDetailsFragment> fragments;
+        ArrayList<Book> books;
 
-        public CustomViewPagerAdapter(@NonNull FragmentManager fm, ArrayList<BookDetailsFragment> fragments) {
+        public CustomViewPagerAdapter(@NonNull FragmentManager fm, ArrayList<Book> books)
+        {
             super(fm);
-            this.fragments = fragments;
+            this.books = books;
         }
 
         @NonNull
         @Override
-        public Fragment getItem(int position) {
-            return fragments.get(position);
+        public Fragment getItem(int position)
+        {
+            return BookDetailsFragment.newInstance(books.get(position));
         }
 
         @Override
-        public int getCount() {
-            return fragments.size();
+        public int getCount()
+        {
+            return books.size();
+        }
+
+        @Override
+        public int getItemPosition(@NonNull Object object)
+        {
+            return PagerAdapter.POSITION_NONE;
         }
     }
 }
