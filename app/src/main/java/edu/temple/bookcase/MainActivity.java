@@ -46,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                             jsonObject.getString("title"),
                             jsonObject.getString("author"),
                             jsonObject.getInt("published"),
-                            jsonObject.getString("cover_url")));
+                            jsonObject.getString("cover_url"),
+                            jsonObject.getInt("duration")));
                 }
 
                 if (fragmentManager.findFragmentById(R.id.pane1) == null)
