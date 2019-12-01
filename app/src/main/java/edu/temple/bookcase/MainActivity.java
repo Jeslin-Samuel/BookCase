@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator
 {
+    
     FragmentManager fragmentManager;
     ArrayList<Book> books;
     Fragment checkPane1, checkPane2;
