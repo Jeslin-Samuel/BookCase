@@ -5,8 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
@@ -21,14 +25,31 @@ import java.net.URL;
 import java.util.ArrayList;
 import edu.temple.audiobookplayer.AudiobookService;
 
-public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator
+public class MainActivity extends AppCompatActivity implements BookListFragment.BookCommunicator, BookDetailsFragment.ServiceInterface
 {
     FragmentManager fragmentManager;
     ArrayList<Book> books;
     Fragment checkPane1, checkPane2;
-    boolean onePane;
+    boolean onePane, connected;
     BookDetailsFragment bookDetailsFragment;
+    AudiobookService.MediaControlBinder binder;
 
+    ServiceConnection serviceConnection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            connected = true;
+            binder = (AudiobookService.MediaControlBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name)
+        {
+            connected = false;
+            binder = null;
+        }
+    };
 
     Handler JSONHandler = new Handler(new Handler.Callback()
     {
@@ -104,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     .add(R.id.pane1, checkPane1)
                     .add(R.id.pane2, bookDetailsFragment).commit();
         }
+
+        startService(new Intent(this, AudiobookService.class));
+        bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     void refreshDisplay()
@@ -137,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         }
 
         bookDetailsFragment = (BookDetailsFragment) checkPane2;
+        startService(new Intent(this, AudiobookService.class));
+        bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     void refreshBooks()
@@ -189,5 +215,15 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 }
             }
         }.start();
+    }
+
+
+    @Override
+    public void playBook(Book book)
+    {
+        if (connected)
+        {
+            binder.play(book.id);
+        }
     }
 }

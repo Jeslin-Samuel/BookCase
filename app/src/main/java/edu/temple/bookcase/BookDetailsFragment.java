@@ -1,5 +1,6 @@
 package edu.temple.bookcase;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ public class BookDetailsFragment extends Fragment
     Book book;
     ImageView bookCover;
     TextView bookTitle, bookAuthor, bookDate;
+    ServiceInterface serviceInterface;
 
     public BookDetailsFragment(){}
 
@@ -39,6 +41,14 @@ public class BookDetailsFragment extends Fragment
             book = (Book) getArguments().getSerializable(ARG_BOOK);
     }
 
+    @Override
+    public void onAttach(@NonNull Context context)
+    {
+        super.onAttach(context);
+        if (context instanceof ServiceInterface)
+            serviceInterface = (ServiceInterface) context;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -51,7 +61,17 @@ public class BookDetailsFragment extends Fragment
         bookCover = view.findViewById(R.id.bookCover);
 
         if (book != null)
+        {
             changeBook(book);
+            view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    serviceInterface.playBook(book);
+                }
+            });
+        }
 
         return view;
     }
@@ -62,4 +82,6 @@ public class BookDetailsFragment extends Fragment
         bookAuthor.setText(book.author);
         Picasso.get().load(book.coverURL).into(bookCover);
     }
+
+    public interface ServiceInterface {void playBook(Book book);}
 }
