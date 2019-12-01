@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     BookDetailsFragment bookDetailsFragment;
     AudiobookService.MediaControlBinder binder;
     TextView playerStatus;
+    SeekBar seekBar;
+    int globalID;
 
     ServiceConnection serviceConnection = new ServiceConnection()
     {
@@ -52,6 +55,32 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             binder = null;
         }
     };
+
+    Handler progressHandler = new Handler(new Handler.Callback()
+    {
+        @Override
+        public boolean handleMessage(@NonNull Message message)
+        {
+            AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) message.obj;
+            int bookIndex = 0, progressOfBook;
+            double duration;
+
+            if (bookProgress != null)
+            {
+                for (int i = 0; i < books.size(); i++)
+                {
+                    if (books.get(i).id == bookProgress.getBookId())
+                        bookIndex = i;
+                }
+
+                duration = books.get(bookIndex).duration;
+                progressOfBook = (int) (100.0 * bookProgress.getProgress() / duration);
+                seekBar.setProgress(progressOfBook);
+            }
+
+            return true;
+        }
+    });
 
     Handler JSONHandler = new Handler(new Handler.Callback()
     {
@@ -87,6 +116,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     });
 
     @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        if (serviceConnection != null)
+            unbindService(serviceConnection);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -102,6 +139,32 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             search("");
         else
             refreshDisplay();
+
+        seekBar = findViewById(R.id.seekBar);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
+                int time = 0, duration;
+                double percentage;
+
+                if (fromUser)
+                {
+                    duration = books.get(globalID - 1).duration;
+                    percentage = progress/100.0;
+                    time = (int) ((double) duration * percentage);
+                    binder.seekTo(time);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar){}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar){}
+        });
 
         findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -248,6 +311,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         {
             binder.play(book.id);
             playerStatus.setText("Now Playing: " + book.title);
+            globalID = book.id;
+            binder.setProgressHandler(progressHandler);
         }
     }
 }
