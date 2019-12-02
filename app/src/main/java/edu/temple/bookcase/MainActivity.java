@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 duration = books.get(bookIndex).duration;
                 progressOfBook = (int) (100.0 * bookProgress.getProgress() / duration);
                 seekBar.setProgress(progressOfBook);
+                globalID = bookProgress.getBookId();
             }
 
             return true;
@@ -311,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         {
             binder.play(book.id);
             playerStatus.setText("Now Playing: " + book.title);
-            globalID = book.id;
             binder.setProgressHandler(progressHandler);
         }
     }
