@@ -80,6 +80,7 @@ public class BookDetailsFragment extends Fragment
     {
         bookTitle.setText(book.title);
         bookAuthor.setText(book.author);
+        bookDate.setText(Integer.toString(book.published));
         Picasso.get().load(book.coverURL).into(bookCover);
     }
 
