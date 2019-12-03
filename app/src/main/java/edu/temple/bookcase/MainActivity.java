@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     TextView playerStatus;
     SeekBar seekBar;
     int globalID;
+    Intent activityIntent;
 
     ServiceConnection serviceConnection = new ServiceConnection()
     {
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         {
             connected = true;
             binder = (AudiobookService.MediaControlBinder) service;
+            binder.setProgressHandler(progressHandler);
         }
 
         @Override
@@ -86,13 +89,18 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
                 {
-                    int time = 0, duration;
+                    int time = 0, duration, bookIndex = 0;
                     double percentage;
 
                     if (fromUser)
                     {
-                        Log.d("Debug", "Reached fromUser check");
-                        duration = books.get(bookProgress.getBookId() - 1).duration;
+                        for (int i = 0; i < books.size(); i++)
+                        {
+                            if (bookProgress.getBookId() == books.get(i).id)
+                                bookIndex = i;
+                        }
+
+                        duration = books.get(bookIndex).duration;
                         percentage = progress/100.0;
                         time = (int) ((double) duration * percentage);
                         binder.seekTo(time);
@@ -162,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         checkPane1 = fragmentManager.findFragmentById(R.id.pane1);
         checkPane2 = fragmentManager.findFragmentById(R.id.pane2);
         onePane = (findViewById(R.id.pane2) == null);
+        activityIntent = new Intent(this, AudiobookService.class);
 
         if (checkPane1 == null)
             search("");
@@ -169,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             refreshDisplay();
 
         seekBar = findViewById(R.id.seekBar);
-        bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
+        bindService(activityIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,10 +259,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         }
 
-        Log.d("Debug", "RefreshDisplay Before");
         bookDetailsFragment = (BookDetailsFragment) checkPane2;
         playerStatus = findViewById(R.id.playerStatus);
-        Log.d("Debug", "RefreshDisplay After");
     }
 
     void refreshBooks()
@@ -312,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void playBook(Book book)
     {
-        startService(new Intent(this, AudiobookService.class));
+        startService(activityIntent);
         if (connected)
         {
             binder.play(book.id);
