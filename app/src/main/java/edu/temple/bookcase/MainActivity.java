@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 progressOfBook = (int) (100.0 * bookProgress.getProgress() / duration);
                 seekBar.setProgress(progressOfBook);
                 globalID = bookProgress.getBookId();
+                playerStatus.setText("Now Playing: " + books.get(bookIndex).title);
             }
 
             return true;
@@ -142,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             refreshDisplay();
 
         seekBar = findViewById(R.id.seekBar);
+        bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
@@ -190,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             {
                 binder.stop();
                 playerStatus.setText("");
+                seekBar.setProgress(0);
+                stopService(new Intent(getBaseContext(), AudiobookService.class));
             }
         });
     }
@@ -211,8 +216,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     .add(R.id.pane2, bookDetailsFragment).commit();
         }
 
-        startService(new Intent(this, AudiobookService.class));
-        bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
         playerStatus = findViewById(R.id.playerStatus);
     }
 
@@ -246,10 +249,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         }
 
+        Log.d("Debug", "RefreshDisplay Before");
         bookDetailsFragment = (BookDetailsFragment) checkPane2;
-        startService(new Intent(this, AudiobookService.class));
-        bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
         playerStatus = findViewById(R.id.playerStatus);
+        Log.d("Debug", "RefreshDisplay After");
     }
 
     void refreshBooks()
@@ -308,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void playBook(Book book)
     {
+        startService(new Intent(this, AudiobookService.class));
         if (connected)
         {
             binder.play(book.id);

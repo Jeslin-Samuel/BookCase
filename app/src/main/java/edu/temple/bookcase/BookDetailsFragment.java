@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,23 +62,23 @@ public class BookDetailsFragment extends Fragment
         bookCover = view.findViewById(R.id.bookCover);
 
         if (book != null)
-        {
             changeBook(book);
-            view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener()
+
+        view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
             {
-                @Override
-                public void onClick(View v)
-                {
-                    serviceInterface.playBook(book);
-                }
-            });
-        }
+                serviceInterface.playBook(book);
+            }
+        });
 
         return view;
     }
 
     public void changeBook(Book book)
     {
+        this.book = book;
         bookTitle.setText(book.title);
         bookAuthor.setText(book.author);
         bookDate.setText(Integer.toString(book.published));
