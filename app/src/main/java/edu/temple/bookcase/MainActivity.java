@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         @Override
         public boolean handleMessage(@NonNull Message message)
         {
-            AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) message.obj;
+            final AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) message.obj;
             int bookIndex = 0, progressOfBook;
             double duration;
 
@@ -80,6 +80,31 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 globalID = bookProgress.getBookId();
                 playerStatus.setText("Now Playing: " + books.get(bookIndex).title);
             }
+
+            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+            {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+                {
+                    int time = 0, duration;
+                    double percentage;
+
+                    if (fromUser)
+                    {
+                        Log.d("Debug", "Reached fromUser check");
+                        duration = books.get(bookProgress.getBookId() - 1).duration;
+                        percentage = progress/100.0;
+                        time = (int) ((double) duration * percentage);
+                        binder.seekTo(time);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar){}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar){}
+            });
 
             return true;
         }
@@ -145,30 +170,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         seekBar = findViewById(R.id.seekBar);
         bindService(new Intent(this, AudiobookService.class), serviceConnection, BIND_AUTO_CREATE);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                int time = 0, duration;
-                double percentage;
-
-                if (fromUser)
-                {
-                    duration = books.get(globalID - 1).duration;
-                    percentage = progress/100.0;
-                    time = (int) ((double) duration * percentage);
-                    binder.seekTo(time);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar){}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar){}
-        });
 
         findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
             @Override
