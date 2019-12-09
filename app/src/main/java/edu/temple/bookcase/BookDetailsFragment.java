@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ public class BookDetailsFragment extends Fragment
     Book book;
     ImageView bookCover;
     TextView bookTitle, bookAuthor, bookDate;
+    Button downloadButton, deleteButton;
     ServiceInterface serviceInterface;
 
     public BookDetailsFragment(){}
@@ -60,6 +62,8 @@ public class BookDetailsFragment extends Fragment
         bookAuthor = view.findViewById(R.id.bookAuthor);
         bookDate = view.findViewById(R.id.bookDate);
         bookCover = view.findViewById(R.id.bookCover);
+        downloadButton = view.findViewById(R.id.downloadButton);
+        deleteButton = view.findViewById(R.id.deleteButton);
 
         if (book != null)
             changeBook(book);
