@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -75,11 +76,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
             if (bookProgress != null)
             {
-                for (int i = 0; i < books.size(); i++)
-                {
-                    if (books.get(i).id == bookProgress.getBookId())
-                        bookIndex = i;
-                }
+                bookIndex = findBookIndex(bookProgress, books);
+
+                Log.d("Debug", "Book index: " + bookIndex);
+                Log.d("Debug", "Progress: " + bookProgress.getProgress());
 
                 duration = books.get(bookIndex).duration;
                 progressOfBook = (int) (100.0 * bookProgress.getProgress() / duration);
@@ -98,12 +98,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
                     if (fromUser)
                     {
-                        for (int i = 0; i < books.size(); i++)
-                        {
-                            if (bookProgress.getBookId() == books.get(i).id)
-                                bookIndex = i;
-                        }
-
+                        bookIndex = findBookIndex(bookProgress, books);
                         duration = books.get(bookIndex).duration;
                         percentage = progress/100.0;
                         time = (int) ((double) duration * percentage);
@@ -339,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void downloadBook(int bookID, Book book)
     {
-        File audiobookFile = new File(getExternalFilesDir(null), book.title);
+        File audiobookFile = new File(getExternalFilesDir(null), "Book" + book.id);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         String downloadURI = "https://kamorris.com/lab/audlib/download.php?id=" + bookID;
 
@@ -355,5 +350,33 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         downloadManager.enqueue(request);
         book.setLocalAudiobook(audiobookFile);
+    }
+
+    public int findBookIndex(AudiobookService.BookProgress bookProgress, ArrayList<Book> books)
+    {
+        int bookIndex = 0;
+        String uriString, URI_ID, compareString;
+
+        if (bookProgress.getBookId() == -1)
+        {
+            for (int i = 0; i < books.size(); i++)
+            {
+                uriString = bookProgress.getBookUri().toString();
+                URI_ID = uriString.substring(uriString.length() - 5);
+                compareString = "Book" + books.get(i).id;
+
+                if (compareString.equals(URI_ID))
+                    bookIndex = i;
+            }
+        }
+
+        else {
+            for (int i = 0; i < books.size(); i++) {
+                if (books.get(i).id == bookProgress.getBookId())
+                    bookIndex = i;
+            }
+        }
+
+        return bookIndex;
     }
 }
