@@ -1,11 +1,13 @@
 package edu.temple.bookcase;
 
+import java.io.File;
 import java.io.Serializable;
 
 public class Book implements Serializable
 {
     int id, published, duration;
     String title, author, coverURL;
+    File localAudiobook;
 
     public Book(int id, String title, String author, int published, String coverURL, int duration)
     {
@@ -15,5 +17,10 @@ public class Book implements Serializable
         this.published = published;
         this.coverURL = coverURL;
         this.duration = duration;
+    }
+
+    public void setLocalAudiobook(File localAudiobook)
+    {
+        this.localAudiobook = localAudiobook;
     }
 }

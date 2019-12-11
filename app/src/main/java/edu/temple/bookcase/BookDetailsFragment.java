@@ -77,6 +77,21 @@ public class BookDetailsFragment extends Fragment
             }
         });
 
+        view.findViewById(R.id.downloadButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                serviceInterface.downloadBook(book.id, book);
+            }
+        });
+
+        view.findViewById(R.id.deleteButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         return view;
     }
 
@@ -89,5 +104,9 @@ public class BookDetailsFragment extends Fragment
         Picasso.get().load(book.coverURL).into(bookCover);
     }
 
-    public interface ServiceInterface {void playBook(Book book);}
+    public interface ServiceInterface
+    {
+        void playBook(Book book);
+        void downloadBook (int bookID, Book book);
+    }
 }

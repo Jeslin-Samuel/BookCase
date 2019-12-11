@@ -5,15 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.DownloadManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -24,7 +25,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import edu.temple.audiobookplayer.AudiobookService;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     SeekBar seekBar;
     int globalID;
     Intent activityIntent;
+    DownloadManager downloadManager;
 
     ServiceConnection serviceConnection = new ServiceConnection()
     {
@@ -322,9 +326,34 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         startService(activityIntent);
         if (connected)
         {
-            binder.play(book.id);
+            if (book.localAudiobook != null)
+                binder.play(book.localAudiobook, 15);
+            else
+                binder.play(book.id);
+
             playerStatus.setText("Now Playing: " + book.title);
             binder.setProgressHandler(progressHandler);
         }
+    }
+
+    @Override
+    public void downloadBook(int bookID, Book book)
+    {
+        File audiobookFile = new File(getExternalFilesDir(null), book.title);
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        String downloadURI = "https://kamorris.com/lab/audlib/download.php?id=" + bookID;
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadURI));
+        request.setTitle("Audiobook Download");
+        request.setDescription("Downloading the audiobook that corresponds with the passed ID");
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
+        request.setDestinationUri(Uri.fromFile(audiobookFile));
+        request.setRequiresCharging(false);
+        request.setAllowedOverMetered(true);
+        request.setAllowedOverRoaming(true);
+        request.setAllowedOverMetered(true);
+
+        downloadManager.enqueue(request);
+        book.setLocalAudiobook(audiobookFile);
     }
 }
