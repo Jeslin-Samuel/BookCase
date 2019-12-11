@@ -332,11 +332,11 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
 
     @Override
-    public void downloadBook(int bookID, Book book)
+    public void downloadBook(Book book)
     {
         File audiobookFile = new File(getExternalFilesDir(null), "Book" + book.id);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        String downloadURI = "https://kamorris.com/lab/audlib/download.php?id=" + bookID;
+        String downloadURI = "https://kamorris.com/lab/audlib/download.php?id=" + book.id;
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadURI));
         request.setTitle("Audiobook Download");
@@ -350,6 +350,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         downloadManager.enqueue(request);
         book.setLocalAudiobook(audiobookFile);
+    }
+
+    public void deleteBook(Book book)
+    {
+//        Log.d("Debug", "Path: " + book.localAudiobook.getAbsolutePath());
+        if (book.localAudiobook != null)
+        {
+            book.localAudiobook.delete();
+            book.setLocalAudiobook(null);
+        }
     }
 
     public int findBookIndex(AudiobookService.BookProgress bookProgress, ArrayList<Book> books)

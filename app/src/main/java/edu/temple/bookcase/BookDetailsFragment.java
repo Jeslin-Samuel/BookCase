@@ -81,14 +81,15 @@ public class BookDetailsFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                serviceInterface.downloadBook(book.id, book);
+                serviceInterface.downloadBook(book);
             }
         });
 
         view.findViewById(R.id.deleteButton).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
+            public void onClick(View view)
+            {
+                serviceInterface.deleteBook(book);
             }
         });
 
@@ -107,6 +108,7 @@ public class BookDetailsFragment extends Fragment
     public interface ServiceInterface
     {
         void playBook(Book book);
-        void downloadBook (int bookID, Book book);
+        void downloadBook (Book book);
+        void deleteBook(Book book);
     }
 }
