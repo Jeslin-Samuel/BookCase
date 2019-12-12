@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 seekBar.setProgress(progressOfBook);
                 globalID = bookProgress.getBookId();
                 playerStatus.setText("Now Playing: " + books.get(bookIndex).title);
+                books.get(bookIndex).setProgress(bookProgress.getProgress());
             }
 
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                         duration = books.get(bookIndex).duration;
                         percentage = progress/100.0;
                         time = (int) ((double) duration * percentage);
+                        books.get(bookIndex).setProgress(bookProgress.getProgress());
                         binder.seekTo(time);
                     }
                 }
@@ -201,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             public void onClick(View v)
             {
                 binder.stop();
+                binder.setProgressHandler(progressHandler);
                 playerStatus.setText("");
                 seekBar.setProgress(0);
                 stopService(new Intent(getBaseContext(), AudiobookService.class));
@@ -322,7 +325,15 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         if (connected)
         {
             if (book.localAudiobook != null)
-                binder.play(book.localAudiobook, 15);
+            {
+                if ((book.progress - 10) <= 0)
+                    binder.play(book.localAudiobook);
+                else {
+                    Log.d("Debug", "Playing from position" + (book.progress - 10));
+                    binder.play(book.localAudiobook, book.progress - 10);
+                }
+            }
+
             else
                 binder.play(book.id);
 

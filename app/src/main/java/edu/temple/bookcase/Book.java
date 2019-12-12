@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class Book implements Serializable
 {
-    int id, published, duration;
+    int id, published, duration, progress = 0;
     String title, author, coverURL;
     File localAudiobook;
 
@@ -22,5 +22,10 @@ public class Book implements Serializable
     public void setLocalAudiobook(File localAudiobook)
     {
         this.localAudiobook = localAudiobook;
+    }
+
+    public void setProgress(int progress)
+    {
+        this.progress = progress;
     }
 }
