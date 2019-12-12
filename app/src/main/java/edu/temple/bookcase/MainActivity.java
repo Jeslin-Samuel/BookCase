@@ -115,6 +115,20 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 public void onStopTrackingTouch(SeekBar seekBar){}
             });
 
+            findViewById(R.id.stopButton).setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    int bookIndex = findBookIndex(bookProgress, books);
+                    books.get(bookIndex).setProgress(0);
+                    binder.stop();
+                    playerStatus.setText("");
+                    seekBar.setProgress(0);
+                    stopService(new Intent(getBaseContext(), AudiobookService.class));
+                }
+            });
+
             return true;
         }
     });
@@ -194,19 +208,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             public void onClick(View v)
             {
                 binder.pause();
-            }
-        });
-
-        findViewById(R.id.stopButton).setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                binder.stop();
-                binder.setProgressHandler(progressHandler);
-                playerStatus.setText("");
-                seekBar.setProgress(0);
-                stopService(new Intent(getBaseContext(), AudiobookService.class));
             }
         });
     }
