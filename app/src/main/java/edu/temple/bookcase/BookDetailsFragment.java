@@ -81,7 +81,8 @@ public class BookDetailsFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                serviceInterface.downloadBook(book);
+                if (book.localAudiobook == null)
+                    serviceInterface.downloadBook(book);
             }
         });
 

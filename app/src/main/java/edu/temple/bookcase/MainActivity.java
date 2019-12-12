@@ -346,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void downloadBook(Book book)
     {
+        Log.d("Debug", "Downloading");
         File audiobookFile = new File(getExternalFilesDir(null), "Book" + book.id);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         String downloadURI = "https://kamorris.com/lab/audlib/download.php?id=" + book.id;
